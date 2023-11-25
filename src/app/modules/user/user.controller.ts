@@ -45,7 +45,7 @@ const getSingleUser = async (
       sendResponse(res, {
         statusCode: 200,
         success: true,
-        message: 'User is retrieved successfully',
+        message: 'User retrieved successfully',
         data: result,
       });
     } catch (err) {
