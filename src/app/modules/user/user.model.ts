@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-import { TAddress, TFullName, TOrder, TUser } from "./user.interface";
+import { TAddress, TFullName, TOrder, TUser, UserModel } from "./user.interface";
 import bcrypt from 'bcrypt';
 
 
@@ -49,7 +49,7 @@ const orderSchema = new Schema<TOrder>({
         required: [true, 'Quantity is required']
     },
 });
-const userSchema = new Schema<TUser>({
+const userSchema = new Schema<TUser, UserModel>({
     userId: {
         type: Number,
         unique: true,
@@ -111,5 +111,18 @@ userSchema.post('save', function (doc, next) {
     doc.password = '';
     next();
 });
+userSchema.post('findOne', function (doc, next) {
+    if(!doc){
+        throw new Error("User doesn't exist!")
+    }
+    doc.password = '';
+    next();
+});
 
-export const User = model<TUser>('User', userSchema);
+//check if a user is already existed or not
+userSchema.statics.isUserExists = async function (userId: string) {
+    const existingUser = await User.findOne({ userId });
+    return existingUser;
+};
+
+export const User = model<TUser, UserModel>('User', userSchema);
