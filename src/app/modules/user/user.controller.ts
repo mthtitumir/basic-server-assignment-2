@@ -4,7 +4,7 @@ import sendResponse from '../../../utils/response';
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { user: userData } = req.body;
+    const userData = req.body;
     const result = await UserServices.createUserInDB(userData);
     sendResponse(res, {
       statusCode: 200,
@@ -51,7 +51,7 @@ const getSingleUser = async (
 const updateUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { userId } = req.params;
-    const { user } = req.body;
+    const user = req.body;
     const result = await UserServices.updateUserFromDB(Number(userId), user);
 
     sendResponse(res, {

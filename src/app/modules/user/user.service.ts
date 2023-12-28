@@ -1,5 +1,6 @@
 import { TOrder, TUser } from './user.interface';
 import { User } from './user.model';
+import bcrypt from 'bcrypt';
 
 const createUserInDB = async (userData: TUser) => {
   const newUser = await User.create(userData);
@@ -27,9 +28,20 @@ const getSingleUserFromDB = async (id: number) => {
 };
 
 const updateUserFromDB = async (id: number, updatedUserData: TUser) => {
-  await User.isUserExists(id);
+  const user = await User.isUserExists(id);
+  if (!user){
+    throw new Error("User not found!")
+  }
+  if (updatedUserData.password) {
+    updatedUserData.password = await bcrypt.hash(
+      updatedUserData.password,
+      Number(20),
+    );
+    const result = await User.updateOne({ userId: id }, updatedUserData);
+    return user;
+  }
   const result = await User.updateOne({ userId: id }, updatedUserData);
-  return result;
+  return user;
 };
 
 const deleteUserFromDB = async (id: number) => {
@@ -73,7 +85,7 @@ const getUserTotalPriceFromDB = async (id: number) => {
       $project: {
         _id: 0,
         totalOrdersPrice: {
-          $sum: "$orders.price",
+          $sum: '$orders.price',
         },
       },
     },
@@ -91,5 +103,5 @@ export const UserServices = {
   deleteUserFromDB,
   addUserOrderIntoDB,
   getUserAllOrdersFromDB,
-  getUserTotalPriceFromDB
+  getUserTotalPriceFromDB,
 };
